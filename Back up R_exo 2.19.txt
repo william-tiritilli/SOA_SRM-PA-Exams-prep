@@ -1,0 +1,355 @@
+```{r}
+#Exercice 2.10: Nursing Home Utilization
+
+#Set the working environment
+getwd()
+setwd("C:\\Users\\William\\Documents\\Actuarial\\SOA - SRM exam\\Data")
+
+df<-read.table(file="WiscNursingHome.csv", header=TRUE, sep=",")
+
+
+#Exercice 1.2
+#Part 1: Use cost-report year 2000 data, and do the following analysis:
+
+#select cost-report year 2000 perimeter
+df_2000<-df[df$CRYEAR=='2000',]
+
+#a. Compute descriptive statistics for TPY, NUMBED, and SQRFOOT
+summary(df_2000)
+
+#b. Summarize the distribution of TPY using a histogram and a qq plot. Does it appear to be approximately normally distributed?
+
+#histogram
+hist(df_2000$TPY)
+
+#qq-plot
+qqnorm(df_2000$TPY, pch = 1, frame = FALSE)
+qqline(df_2000$TPY, col = "blue", lwd = 2)
+
+#Comments
+#The data does not looked to be normally distributed
+
+#c. Transformations. 
+#Take a (natural) logarithmic transformation of TPY
+#(LOGTPY). Summarize the resulting distribution using a histogram and a qq plot. Does it appear to be approximately normally distributed?
+
+df_2000$LOGTPY<-log(df_2000$TPY)
+
+#histogram
+hist(df_2000$LOGTPY)
+
+#qq-plot
+qqnorm(df_2000$LOGTPY, pch = 1, frame = FALSE)
+qqline(df_2000$LOGTPY, col = "blue", lwd = 2)
+
+#Part 2: Use cost-report year 2001 data and repeat parts (a) and (c).
+
+#Selection perimeter
+df_2001<-df[df$CRYEAR=='2001',]
+
+#histogram
+hist(df_2001$TPY)
+
+#qq-plot
+qqnorm(df_2001$TPY, pch = 1, frame = FALSE)
+qqline(df_2001$TPY, col = "blue", lwd = 2)
+
+#Transformation
+df_2001$LOGTPY<-log(df_2001$TPY)
+
+#histogram
+hist(df_2001$LOGTPY)
+
+#qq-plot
+qqnorm(df_2001$LOGTPY, pch = 1, frame = FALSE)
+qqline(df_2001$LOGTPY, col = "yellow", lwd = 2)
+
+
+
+
+```
+
+```{r}
+#Exercice 2.10
+
+#a. Correlations
+#a(i). Calculate the correlation between TPY and LOGTPY. 
+#Comment on your result.
+
+
+#Check on missing values
+
+# create new dataset without missing data
+df<- na.omit(df_2000)
+
+r=cor(df_2000$TPY,df_2000$LOGTPY)
+print(r)
+
+#The relationship between TPY and its transformation into logarithm is strong.
+
+#a(ii). Calculate the correlation among TPY, NUMBED, and
+#SQRFOOT. Do these variables appear highly correlated?
+
+matrix_cor<-cor(df[,c(3,4,5)])
+print(matrix_cor)
+
+#a(iii). Calculate the correlation between TPY and NUMBED/10. Comment on your result
+cor((df$NUMBED)/10,df$TPY)
+
+```
+```{r}
+
+#b. Scatter plots. Plot TPY versus NUMBED and TPY versus SQRFOOT.
+#Comment on the plots.
+
+plot(df$TPY,df$NUMBED)
+plot(df$TPY,df$SQRFOOT)
+
+#Comments
+#The graph show an high correlation between both variables
+
+```
+```{r}
+#c. Basic linear regression.
+#c(i). Fit a basic linear regression model using TPY as the outcome
+#variable and NUMBED as the explanatory variable. Summarize
+#the fit by quoting the coefficient of determination, R2, and the
+#t-statistic for NUMBED
+
+#We build a linear model using the lm fonction
+m1 <- lm(TPY ~ NUMBED, data = df)
+
+#By using, the attributes of the model, we can retrieve the information that we need
+print(attributes(m1))
+
+#Summary with coeff, t-stat, R2 and R2-adj.
+sm1<-summary(m1)
+
+print(sm1$coefficients)
+print(sm1[8])
+print(sm1[9])
+
+
+#c(ii). Repeat c(i), using SQRFOOT instead of NUMBED. In terms of
+#R2, which model fits better?
+
+m2 <- lm(TPY ~ SQRFOOT, data = df)
+sm2<-summary(m2)
+
+print(sm2$coefficients)
+print(sm2[8])
+print(sm2[9])
+
+#Higher R2 in model 1: model 1 fits better.
+
+#R2 explains the proportion of variability explained by the regression line.
+```
+```{r}
+#c(iii). Repeat c(i), using LOGTPY for the outcome variable and
+#LOG(NUMBED) as the explanatory variable
+
+df$LOGTPY=log(df$TPY)
+df$LOG.NUMBED=log(df$NUMBED)
+
+m3 <- lm(LOGTPY ~ LOG.NUMBED, data = df)
+sm3<-summary(m3)
+
+print(sm3$coefficients)
+print(sm3[8])
+print(sm3[9])
+
+#Lower R2 in this case.
+
+#c(iv). Repeat c(iii) using LOGTPY for the outcome variable and
+#LOG(SQRFOOT) as the explanatory variable.
+
+df$LOG.SQRFOOT=log(df$SQRFOOT)
+
+m4 <- lm(LOGTPY ~ LOG.SQRFOOT, data = df)
+sm4<-summary(m4)
+
+print(sm4$coefficients)
+print(sm4[8])
+print(sm4[9])
+
+#R2 appears to be smaller.
+
+```
+
+```{r}
+# Exercice 2.20 Nursing Home
+
+# This exercise considers nursing home data R Empirical
+# Filename is
+# “WiscNursingHome” provided by the Wisconsin Department of Health and Family Services
+# (DHFS) and described in Exercises 1.2 and 2.10.
+# You decide to examine the relationship between total patient years
+# (LOGTPY) and the number of beds (LOGNUMBED), both in logarithmic units, using cost-report year 2001 data.
+
+
+# Set the perimeter
+
+
+# Creation of the variable LOGNUMBED
+
+df_2001$LOGNUMBED<-log(df_2001$NUMBED)
+
+
+# a. Summary statistics. Create basic summary statistics for each variable.
+# Summarize the relationship through a correlation statistic and a scatter plot.
+summary(df_2001)
+
+# Coefficient of corellation
+cor(df_2001$LOGTPY,df_2001$LOGNUMBED)
+
+# Very high correlation between the two variables
+
+# Graph
+plot(df_2001$LOGTPY,df_2001$LOGNUMBED)
+
+# Graph shows a high correlation between the two variables.
+# Indeed, the scatter plot has a shape of a line.
+
+# b. Fit the basic linear model. Cite the basic summary statistics,
+# include the coefficient of determination, the regression coefficient for LOGNUMBED, and the corresponding t-statistic.
+
+m1<-lm(LOGTPY~LOGNUMBED,data=df_2001)
+sm1<-summary(m1)
+
+print(sm1$coefficients)
+print(sm1[8])
+print(sm1[9])
+
+# c. Hypothesis testing. Test the following hypotheses at the 5 level
+# of significance using a t-statistic. Also compute the corresponding
+# p-value.
+
+# c(i). Test H0 : β1 = 0 versus Ha : β1 <> 0.
+t_b1=(sm1$coefficients[2]-0)/sm1$coefficients[4]
+print(t_b1)
+
+#Residual standard error:
+sd_b1=sm1$coefficients[2,2]
+print(sd_b1)
+
+#We need to calculate the quantile of the Student distribution
+ttheo <- qt(0.975,nrow(df_2001)-2)
+print(ttheo)
+
+#We calculate the p-value with the help of the "pt" function
+print(2.0*(1.0-pt(abs(t_b1),nrow(df_2001)-2)))
+
+# p-value=0 << 5% ==> reject of H0.
+
+# Here, t(b1)=100.7302 calculated > |t_theoritical| = 1.96 ==> reject H0 in favor of H1.
+
+
+# c(ii). Test H0 : β1 = 1 versus Ha : β1 <> 1
+
+t_b1_2=(sm1$coefficients[2]-1)/sm1$coefficients[4]
+print(t_b1_2)
+
+#We need to calculate the quantile of the Student distribution
+ttheo <- qt(0.975,nrow(df_2001)-2)
+print(ttheo)
+
+# We observe that t_b1_2 = 1.900567 < ttheo = 1.96 ==> "we do not reject H0 in favor of the alternative".
+
+#We calculate the p-value with the help of the "pt" function
+print(2.0*(1.0-pt(abs(t_b1_2),nrow(df_2001)-2)))
+
+# p-value > 5% : acceptation H0.
+
+
+# c(iii). Test H0 : β1 = 1 versus Ha : β1 > 1.
+t_b1_2=(sm1$coefficients[2]-1)/sm1$coefficients[4]
+print(t_b1_2)
+
+# We need to calculate the quantile of the Student distribution
+ttheo <- qt(0.95,nrow(df_2001)-2)
+print(ttheo)
+
+#We calculate the p-value with the help of the "pt" function
+print(2.0*(1.0-pt(abs(t_b1_2),nrow(df_2001)-2)))
+
+# Different rule here,
+# t_b1=1.900567 > ttheo = 1.645 ==> "We reject H0 in favor of the alternative".
+
+
+# c(iv). Test H0 : β1 = 1 versus Ha : β1 < 1.
+
+# Here, corresponding statistic is -1.645
+
+# Here t_b1=1.900567 > -ttheo = - 1.64 ==> "We do not reject H0 in favor of the alternative".
+
+
+
+
+```
+
+```{r}
+
+# d. You are interested in the effect that a marginal change in
+# LOGNUMBED has on the expected value of LOGTPY.
+
+# d(i). Suppose that there is a marginal change in LOGNUMBED of 2.
+# Provide a point estimate of the expected change in LOGTPY.
+
+x=2
+
+y<-sm1$coefficients[2]*x + sm1$coefficients[1]
+print(y)
+
+# Answer: d(i). A point estimate is 2.0384.
+
+# d(ii). Provide a 95% confidence interval corresponding to the point
+# estimate in part d(i).
+
+
+# 95% C.I. for slope b1 is 1.0192 ± 1.9667 × 0.0101 = (0.9993,
+# 1.0391). 
+
+# A 95% C.I. for expected change of LOGTPY is (0.9993 ×
+# 2, 1.0391 × 2) = (1.9987, 2.0781)
+
+
+# d(iii). Provide a 99% confidence interval corresponding to the point
+# estimate in part d(i).
+
+# A 99% C.I. is (2 × (1.0192 − 2.5898 × 0.0101), 2 × (1.0192 +
+# 2.5898 × 0.0101) = (1.9861, 2.0907)
+
+
+
+
+
+
+```
+
+```{r}
+# e. At a specified number of beds estimate x∗ = 100, do these things:
+# e(i). Find the predicted value of LOGTPY.
+
+x=100
+
+y<-sm1$coefficients[2]*log(x) + sm1$coefficients[1]
+print(y)
+
+# e(ii). Obtain the standard error of the prediction.
+
+# number observation
+n = nrow(df_2001)
+
+se_pred=sm1$coefficients[4]*((1+(1/n) + (log(x)-mean(df_2001$LOGNUMBED)^2/(n-1)*(sd(log(x))^2)))^0.5
+
+print(se_pred)
+
+
+# e(iii). Obtain a 95% prediction interval for your prediction.
+# e(iv). Convert the point prediction in part e(i) and the prediction interval obtained in part e(iii) into total person years (through exponentiation).
+# e(v). Obtain a prediction interval as in part e(iv), corresponding to a
+# 90% level (in lieu of 95%).
+```
+
+
+
