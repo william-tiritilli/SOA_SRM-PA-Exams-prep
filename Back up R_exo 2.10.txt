@@ -1,0 +1,178 @@
+```{r}
+#Exercice 2.10: Nursing Home Utilization
+
+#Set the working environment
+getwd()
+setwd("C:\\Users\\William\\Documents\\Actuarial\\SOA - SRM exam\\Data")
+
+df<-read.table(file="WiscNursingHome.csv", header=TRUE, sep=",")
+
+
+#Exercice 1.2
+#Part 1: Use cost-report year 2000 data, and do the following analysis:
+
+#select cost-report year 2000 perimeter
+df_2000<-df[df$CRYEAR=='2000',]
+
+#a. Compute descriptive statistics for TPY, NUMBED, and SQRFOOT
+summary(df_2000)
+
+#b. Summarize the distribution of TPY using a histogram and a qq plot. Does it appear to be approximately normally distributed?
+
+#histogram
+hist(df_2000$TPY)
+
+#qq-plot
+qqnorm(df_2000$TPY, pch = 1, frame = FALSE)
+qqline(df_2000$TPY, col = "blue", lwd = 2)
+
+#Comments
+#The data does not looked to be normally distributed
+
+#c. Transformations. 
+#Take a (natural) logarithmic transformation of TPY
+#(LOGTPY). Summarize the resulting distribution using a histogram and a qq plot. Does it appear to be approximately normally distributed?
+
+df_2000$LOGTPY<-log(df_2000$TPY)
+
+#histogram
+hist(df_2000$LOGTPY)
+
+#qq-plot
+qqnorm(df_2000$LOGTPY, pch = 1, frame = FALSE)
+qqline(df_2000$LOGTPY, col = "blue", lwd = 2)
+
+#Part 2: Use cost-report year 2001 data and repeat parts (a) and (c).
+
+#Selection perimeter
+df_2001<-df[df$CRYEAR=='2001',]
+
+#histogram
+hist(df_2001$TPY)
+
+#qq-plot
+qqnorm(df_2001$TPY, pch = 1, frame = FALSE)
+qqline(df_2001$TPY, col = "blue", lwd = 2)
+
+#Transformation
+df_2001$LOGTPY<-log(df_2001$TPY)
+
+#histogram
+hist(df_2001$LOGTPY)
+
+#qq-plot
+qqnorm(df_2001$LOGTPY, pch = 1, frame = FALSE)
+qqline(df_2001$LOGTPY, col = "yellow", lwd = 2)
+
+
+
+
+```
+
+```{r}
+#Exercice 2.10
+
+#a. Correlations
+#a(i). Calculate the correlation between TPY and LOGTPY. 
+#Comment on your result.
+
+
+#Check on missing values
+
+# create new dataset without missing data
+df<- na.omit(df_2000)
+
+r=cor(df_2000$TPY,df_2000$LOGTPY)
+print(r)
+
+#The relationship between TPY and its transformation into logarithm is strong.
+
+#a(ii). Calculate the correlation among TPY, NUMBED, and
+#SQRFOOT. Do these variables appear highly correlated?
+
+matrix_cor<-cor(df[,c(3,4,5)])
+print(matrix_cor)
+
+#a(iii). Calculate the correlation between TPY and NUMBED/10. Comment on your result
+cor((df$NUMBED)/10,df$TPY)
+
+```
+```{r}
+
+#b. Scatter plots. Plot TPY versus NUMBED and TPY versus SQRFOOT.
+#Comment on the plots.
+
+plot(df$TPY,df$NUMBED)
+plot(df$TPY,df$SQRFOOT)
+
+#Comments
+#The graph show an high correlation between both variables
+
+```
+```{r}
+#c. Basic linear regression.
+#c(i). Fit a basic linear regression model using TPY as the outcome
+#variable and NUMBED as the explanatory variable. Summarize
+#the fit by quoting the coefficient of determination, R2, and the
+#t-statistic for NUMBED
+
+#We build a linear model using the lm fonction
+m1 <- lm(TPY ~ NUMBED, data = df)
+
+#By using, the attributes of the model, we can retrieve the information that we need
+print(attributes(m1))
+
+#Summary with coeff, t-stat, R2 and R2-adj.
+sm1<-summary(m1)
+
+print(sm1$coefficients)
+print(sm1[8])
+print(sm1[9])
+
+
+#c(ii). Repeat c(i), using SQRFOOT instead of NUMBED. In terms of
+#R2, which model fits better?
+
+m2 <- lm(TPY ~ SQRFOOT, data = df)
+sm2<-summary(m2)
+
+print(sm2$coefficients)
+print(sm2[8])
+print(sm2[9])
+
+#Higher R2 in model 1: model 1 fits better.
+
+#R2 explains the proportion of variability explained by the regression line.
+```
+```{r}
+#c(iii). Repeat c(i), using LOGTPY for the outcome variable and
+#LOG(NUMBED) as the explanatory variable
+
+df$LOGTPY=log(df$TPY)
+df$LOG.NUMBED=log(df$NUMBED)
+
+m3 <- lm(LOGTPY ~ LOG.NUMBED, data = df)
+sm3<-summary(m3)
+
+print(sm3$coefficients)
+print(sm3[8])
+print(sm3[9])
+
+#Lower R2 in this case.
+
+#c(iv). Repeat c(iii) using LOGTPY for the outcome variable and
+#LOG(SQRFOOT) as the explanatory variable.
+
+df$LOG.SQRFOOT=log(df$SQRFOOT)
+
+m4 <- lm(LOGTPY ~ LOG.SQRFOOT, data = df)
+sm4<-summary(m4)
+
+print(sm4$coefficients)
+print(sm4[8])
+print(sm4[9])
+
+#R2 appears to be smaller.
+
+```
+
